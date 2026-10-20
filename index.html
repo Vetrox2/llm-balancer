@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>llm-balancer docs</title>
+    <meta
+      name="description"
+      content="Documentation of @vetrox/llm-balancer: model pools with automatic fallback, per-model cooldowns and time budgets for LLM providers."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>"
+    />
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css" />
+    <link
+      id="hl-dark"
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <link
+      id="hl-light"
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+      disabled
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+    :root {
+      --pico-font-size: 100%;
+      --sidebar-width: 15rem;
+    }
+    body {
+      background: var(--pico-background-color);
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--pico-background-color);
+      border-bottom: 1px solid var(--pico-muted-border-color);
+    }
+    .topbar nav {
+      padding-inline: 1rem;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-decoration: none;
+    }
+    .brand small {
+      color: var(--pico-muted-color);
+      font-weight: 400;
+      margin-left: 0.4rem;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      gap: 2.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+    .tabs {
+      position: sticky;
+      top: 5rem;
+      align-self: start;
+    }
+    .tabs ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .tabs li {
+      list-style: none;
+      margin: 0 0 0.15rem;
+      padding: 0;
+    }
+    .tabs a {
+      display: block;
+      padding: 0.45rem 0.8rem;
+      border-radius: var(--pico-border-radius);
+      color: var(--pico-muted-color);
+      text-decoration: none;
+    }
+    .tabs a:hover {
+      color: var(--pico-color);
+      background: var(--pico-card-background-color);
+    }
+    .tabs a[aria-current='page'] {
+      color: var(--pico-primary);
+      background: var(--pico-card-background-color);
+      font-weight: 600;
+    }
+    main section {
+      display: none;
+    }
+    main section.active {
+      display: block;
+    }
+    main h1 {
+      margin-bottom: 0.5rem;
+    }
+    .lead {
+      font-size: 1.15rem;
+      color: var(--pico-muted-color);
+      margin-bottom: 2rem;
+    }
+    pre {
+      border-radius: var(--pico-border-radius);
+    }
+    pre code.hljs {
+      padding: 1rem 1.2rem;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    table {
+      font-size: 0.9rem;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: var(--pico-spacing);
+    }
+    .table-wrap table {
+      margin-bottom: 0;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .features article {
+      margin: 0;
+      padding: 1.1rem 1.2rem;
+    }
+    .features h4 {
+      margin-bottom: 0.4rem;
+      font-size: 1rem;
+    }
+    .features p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--pico-muted-color);
+    }
+    .callout {
+      border-left: 4px solid var(--pico-primary);
+      padding: 0.8rem 1rem;
+      background: var(--pico-card-background-color);
+      border-radius: 0 var(--pico-border-radius) var(--pico-border-radius) 0;
+      margin-bottom: var(--pico-spacing);
+    }
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+    .pager {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--pico-muted-border-color);
+    }
+    #theme-toggle {
+      margin: 0;
+      padding: 0.35rem 0.7rem;
+      width: auto;
+    }
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+        padding-top: 1rem;
+      }
+      .layout > * {
+        min-width: 0;
+      }
+      .tabs {
+        position: static;
+        overflow-x: auto;
+      }
+      .tabs ul {
+        display: flex;
+        gap: 0.25rem;
+        white-space: nowrap;
+      }
+      .brand small {
+        display: none;
+      }
+      .topbar nav {
+        padding-inline: 0.5rem;
+      }
+      .topbar nav li {
+        padding-inline: 0.4rem;
+      }
+    }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav>
+        <ul>
+          <li>
+            <a class="brand contrast"
+              href="#overview">⚖️ llm-balancer<small>@vetrox/llm-balancer</small></a>
+          </li>
+        </ul>
+        <ul>
+          <li><a href="https://jsr.io/@vetrox/llm-balancer" class="secondary">JSR</a></li>
+          <li><a href="https://github.com/Vetrox2/llm-balancer" class="secondary">GitHub</a></li>
+          <li>
+            <button id="theme-toggle" class="outline secondary"
+              aria-label="Toggle theme">☀️</button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="tabs">
+        <nav aria-label="Documentation">
+          <ul id="tab-list"></ul>
+        </nav>
+      </aside>
+
+      <main id="content">
+        <!-- ============================== OVERVIEW ============================== -->
+        <section id="tab-overview" data-title="Overview">
+          <h1>llm-balancer</h1>
+          <p class="lead">
+            One call, many models. Group LLM models into pools; when one fails, the next one
+            answers, and the failing one sits out a cooldown.
+          </p>
+
+          <div class="features">
+            <article>
+              <h4>🔁 Fallback</h4>
+              <p>Models of a pool are tried in order until one answers.</p>
+            </article>
+            <article>
+              <h4>🩺 Model health</h4>
+              <p>A failing model is skipped for a cooldown chosen by the kind of failure.</p>
+            </article>
+            <article>
+              <h4>⏱️ Time budgets</h4>
+              <p>A timeout per attempt and a time limit for the whole request.</p>
+            </article>
+            <article>
+              <h4>🔌 Any vendor</h4>
+              <p>Gemini and Ollama built in; any other through one small interface.</p>
+            </article>
+            <article>
+              <h4>🧷 Type-safe</h4>
+              <p>Pool names and model ids are typed from your configuration.</p>
+            </article>
+            <article>
+              <h4>📡 Observable</h4>
+              <p>One event hook for logging. Events never carry prompts or answers.</p>
+            </article>
+          </div>
+
+          <h3>How a request is handled</h3>
+          <p><code>balancer.model(pool).converse(request)</code>:</p>
+          <ol>
+            <li>
+              Orders the pool's models: <strong>healthy</strong> ones first, in pool order, then
+              unhealthy ones whose policy allows a <strong>last resort</strong>. Unhealthy models
+              without it are skipped until their cooldown ends.
+            </li>
+            <li>
+              Calls each model with an <code>AbortSignal</code> that fires after
+              <code>attemptTimeoutMs</code>, capped by what is left of
+              <code>requestBudgetMs</code>. Models left when the budget is used up are skipped.
+            </li>
+            <li>Returns the first answer and marks that model healthy.</li>
+            <li>
+              A failed attempt puts the model on a cooldown chosen by its
+              <a href="#configuration">failure kind</a> and moves on to the next model.
+            </li>
+            <li>
+              Content blocked by a vendor's safety filter stops the chain at once with
+              <code>LlmContentBlockedError</code>: the next model would most likely block it too,
+              and the model is not at fault, so it gets no cooldown.
+            </li>
+            <li>
+              When nothing answered, throws <code>AllModelsFailedError</code> with the reason for
+              every model.
+            </li>
+          </ol>
+          <div class="callout">
+            <p>
+              Each model is called <strong>at most once per request</strong>. The same model may
+              appear in several pools; its health is shared between them.
+            </p>
+          </div>
+
+          <h3>Runtimes</h3>
+          <p>
+            The core uses web-standard APIs only (<code>fetch</code>, <code>AbortController</code>,
+            timers), so it runs on Deno, Node.js 20+, Bun, Supabase Edge Functions and Cloudflare
+            Workers. Keep API keys on the server: a balancer in the browser would expose them.
+          </p>
+        </section>
+
+        <!-- =========================== GETTING STARTED ========================== -->
+        <section id="tab-getting-started" data-title="Getting started">
+          <h1>Getting started</h1>
+          <p class="lead">Install, create one balancer, ask a pool.</p>
+
+          <h3>Install</h3>
+          <pre><code class="language-bash">deno add jsr:@vetrox/llm-balancer      # Deno
+npx jsr add @vetrox/llm-balancer       # Node.js
+bunx jsr add @vetrox/llm-balancer      # Bun</code></pre>
+
+          <h3>Entry points</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Import</th>
+                  <th>Contents</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>@vetrox/llm-balancer</code></td>
+                  <td><code>LoadBalancer</code>, errors, types, <code>MemoryHealthStore</code>, <code>failureKindForStatus</code></td>
+                </tr>
+                <tr>
+                  <td><code>@vetrox/llm-balancer/gemini</code></td>
+                  <td><code>gemini()</code>, <code>GeminiProvider</code> (depends on <code>@google/genai</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>@vetrox/llm-balancer/ollama</code></td>
+                  <td><code>ollama()</code>, <code>OllamaProvider</code> (no dependencies)</td>
+                </tr>
+                <tr>
+                  <td><code>@vetrox/llm-balancer/env</code></td>
+                  <td><code>providersFromEnv()</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Import only the providers you use: the core has no vendor dependencies.</p>
+
+          <h3>Create the balancer</h3>
+          <pre><code class="language-ts">import { LoadBalancer } from '@vetrox/llm-balancer';
+import { gemini } from '@vetrox/llm-balancer/gemini';
+import { ollama } from '@vetrox/llm-balancer/ollama';
+
+export const balancer = new LoadBalancer({
+  providers: [
+    gemini({ apiKey: GEMINI_API_KEY }),
+    ollama({ baseUrl: 'http://localhost:11434' }),
+  ],
+  pools: {
+    default: [
+      { provider: 'gemini', model: 'gemini-2.5-flash' },
+      { provider: 'gemini', model: 'gemini-2.5-flash-lite' },
+      { provider: 'ollama', model: 'qwen3' },
+    ],
+    cheap: [{ provider: 'gemini', model: 'gemini-2.5-flash-lite' }],
+  },
+});</code></pre>
+          <div class="callout">
+            <p>
+              Create the balancer <strong>once</strong> (at startup, or as a singleton in your DI
+              container) and reuse it. Model health lives inside it; a new balancer per request
+              would forget every cooldown.
+            </p>
+          </div>
+
+          <h3>Send a request</h3>
+          <pre><code class="language-ts">const answer = await balancer.model('default').converse({
+  system: 'You are a concise assistant.',
+  messages: [{ role: 'user', content: 'Name three prime numbers.' }],
+  maxOutputTokens: 200,
+});</code></pre>
+
+          <h3>Request shape</h3>
+          <pre><code class="language-ts">interface ConverseRequest {
+  system?: string;          // trusted instructions, sent through the vendor's system channel
+  messages: Message[];
+  maxOutputTokens?: number; // thinking models count reasoning tokens towards it too
+}
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string | Part[];
+}
+
+type Part =
+  | { type: 'text'; text: string }
+  | { type: 'image'; data: Uint8Array; mimeType?: string }; // detected when omitted</code></pre>
+          <p>
+            The same request object is replayed on every model of the chain. Images are
+            base64-encoded once per request, however many models are tried. When
+            <code>mimeType</code> is omitted it is detected from the bytes (PNG, JPEG, WebP, GIF).
+          </p>
+        </section>
+
+        <!-- ============================ CONFIGURATION =========================== -->
+        <section id="tab-configuration" data-title="Configuration">
+          <h1>Configuration</h1>
+          <p class="lead">Every option of <code>new LoadBalancer(config)</code>.</p>
+
+          <pre><code class="language-ts">new LoadBalancer({
+  providers: [gemini({ apiKey }), ollama({ baseUrl })],
+  pools: { default: [/* models in fallback order */] },
+  health: {
+    defaultCooldownSeconds: 90,
+    byKind: {
+      rate_limited: { cooldownSeconds: 60 },
+      auth: { cooldownSeconds: Infinity },
+      invalid_response: { cooldownSeconds: 20 },
+      overloaded: { cooldownSeconds: 15, lastResort: true },
+    },
+  },
+  timeouts: { requestBudgetMs: 60_000, attemptTimeoutMs: 25_000 },
+  onEvent: (event) => console[event.level](event.type, event.data),
+  healthStore: new MemoryHealthStore(),
+});</code></pre>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Option</th>
+                  <th>Default</th>
+                  <th>Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>providers</code></td>
+                  <td>required</td>
+                  <td>Every provider the pools use; names must be unique</td>
+                </tr>
+                <tr>
+                  <td><code>pools</code></td>
+                  <td>required</td>
+                  <td>Pool name → models in fallback order</td>
+                </tr>
+                <tr>
+                  <td><code>health.defaultCooldownSeconds</code></td>
+                  <td><code>60</code></td>
+                  <td>Cooldown for every kind without its own</td>
+                </tr>
+                <tr>
+                  <td><code>health.byKind</code></td>
+                  <td>see below</td>
+                  <td>Per-kind <code>cooldownSeconds</code> and <code>lastResort</code></td>
+                </tr>
+                <tr>
+                  <td><code>timeouts.requestBudgetMs</code></td>
+                  <td><code>60000</code></td>
+                  <td>Time for the whole fallback chain of one request</td>
+                </tr>
+                <tr>
+                  <td><code>timeouts.attemptTimeoutMs</code></td>
+                  <td><code>25000</code></td>
+                  <td>Time for one model, capped by what is left of the budget</td>
+                </tr>
+                <tr>
+                  <td><code>onEvent</code></td>
+                  <td>none</td>
+                  <td>Logging hook; exceptions thrown by it are ignored</td>
+                </tr>
+                <tr>
+                  <td><code>healthStore</code></td>
+                  <td><code>new MemoryHealthStore()</code></td>
+                  <td>Where model health is kept (<a href="#health-store">Health store</a>)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Pools</h3>
+          <p>
+            A pool is a list of <code>{ provider, model }</code> in fallback order. Pool names
+            become a type: <code>balancer.model('typo')</code> does not compile. The
+            <code>model</code> field is typed by its provider, so built-in providers autocomplete
+            known model ids and still accept any other string.
+          </p>
+
+          <h3>Failure kinds</h3>
+          <p>
+            Providers classify every failure. The kind decides how long the model is out and
+            whether it may still be tried as a <strong>last resort</strong>, after every healthy
+            model of the pool has failed.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kind</th>
+                  <th>Typical cause</th>
+                  <th>Last resort by default</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>rate_limited</code></td>
+                  <td>HTTP 429, quota used up</td>
+                  <td>no</td>
+                </tr>
+                <tr>
+                  <td><code>auth</code></td>
+                  <td>HTTP 401 / 403, bad key</td>
+                  <td>no</td>
+                </tr>
+                <tr>
+                  <td><code>not_found</code></td>
+                  <td>HTTP 404, unknown or unpulled model</td>
+                  <td>no</td>
+                </tr>
+                <tr>
+                  <td><code>overloaded</code></td>
+                  <td>HTTP 503</td>
+                  <td>yes</td>
+                </tr>
+                <tr>
+                  <td><code>timeout</code></td>
+                  <td>attempt timeout, HTTP 408</td>
+                  <td>yes</td>
+                </tr>
+                <tr>
+                  <td><code>server_error</code></td>
+                  <td>other HTTP 5xx</td>
+                  <td>yes</td>
+                </tr>
+                <tr>
+                  <td><code>invalid_response</code></td>
+                  <td>empty or unreadable answer</td>
+                  <td>yes</td>
+                </tr>
+                <tr>
+                  <td><code>unknown</code></td>
+                  <td>anything else, including network errors</td>
+                  <td>yes</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Health policy</h3>
+          <pre><code class="language-ts">interface HealthPolicyConfig {
+  defaultCooldownSeconds?: number;                          // default 60
+  byKind?: Partial&lt;Record&lt;FailureKind, FailurePolicy&gt;&gt;;
+}
+
+interface FailurePolicy {
+  cooldownSeconds?: number; // Infinity = out until the process restarts
+  lastResort?: boolean;     // may it be tried when every healthy model failed?
+}</code></pre>
+          <ul>
+            <li>Every kind uses <code>defaultCooldownSeconds</code> unless <code>byKind</code> overrides it.</li>
+            <li>Fields left out of an override keep their defaults.</li>
+            <li>
+              When the vendor says how long to wait (<code>retryAfterSeconds</code>, for example
+              Gemini's <code>RetryInfo</code> on a used-up daily quota), the cooldown is
+              <strong>never shorter</strong> than that.
+            </li>
+            <li>
+              Use <code>lastResort: false</code> when retrying cannot help before the cooldown
+              ends (a used-up quota, bad keys).
+            </li>
+          </ul>
+
+          <h3>Timeouts</h3>
+          <p>
+            Every attempt gets <code>attemptTimeoutMs</code>, capped by what is left of
+            <code>requestBudgetMs</code>. When the time runs out the provider's
+            <code>AbortSignal</code> fires and the balancer stops waiting even if the provider
+            ignores the signal. A timed-out attempt is a <code>timeout</code> failure; models left
+            after the budget is spent are reported as skipped.
+          </p>
+
+          <h3>Validation</h3>
+          <p>
+            The configuration is validated in the constructor. No pools, an empty pool, a pool that
+            lists a model twice, a model of an unknown provider, two providers with the same name,
+            or a negative or non-numeric timeout or cooldown throw
+            <code>BalancerConfigError</code> at startup instead of failing on the first request.
+          </p>
+        </section>
+
+        <!-- ================================ ERRORS ============================== -->
+        <section id="tab-errors" data-title="Errors">
+          <h1>Errors</h1>
+          <p class="lead">What can be thrown, by whom, and when.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Thrown by</th>
+                  <th>Error</th>
+                  <th>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>new LoadBalancer()</code></td>
+                  <td><code>BalancerConfigError</code></td>
+                  <td>invalid configuration</td>
+                </tr>
+                <tr>
+                  <td><code>balancer.model(pool)</code></td>
+                  <td><code>BalancerConfigError</code></td>
+                  <td>pool not configured (only reachable without type checking)</td>
+                </tr>
+                <tr>
+                  <td><code>handle.converse()</code></td>
+                  <td><code>AllModelsFailedError</code></td>
+                  <td>no model answered</td>
+                </tr>
+                <tr>
+                  <td><code>handle.converse()</code></td>
+                  <td><code>LlmContentBlockedError</code></td>
+                  <td>a vendor's safety filter blocked the content</td>
+                </tr>
+                <tr>
+                  <td><code>gemini()</code>, <code>ollama()</code>, <code>providersFromEnv()</code></td>
+                  <td><code>BalancerConfigError</code></td>
+                  <td>missing API key, invalid base URL</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>AllModelsFailedError</h3>
+          <pre><code class="language-ts">class AllModelsFailedError extends Error {
+  readonly pool: string;
+  readonly failures: readonly AttemptFailure[]; // every model, in the order handled
+}
+
+interface AttemptFailure {
+  provider: string;
+  model: string;
+  kind: FailureKind;
+  message: string;
+  skipped: boolean; // true: not called at all (cooling down, or out of time budget)
+}</code></pre>
+
+          <h3>LlmContentBlockedError</h3>
+          <p>
+            Carries <code>reason</code> (for example <code>prompt: SAFETY</code>). It ends the chain
+            and does not put the model on a cooldown.
+          </p>
+
+          <h3>LlmProviderError</h3>
+          <p>
+            What providers throw for a classified failure. The balancer catches it and reports it
+            inside <code>AllModelsFailedError.failures</code>; your code normally never sees it.
+          </p>
+          <pre><code class="language-ts">new LlmProviderError({
+  kind: 'rate_limited',     // FailureKind
+  message: 'Quota exceeded',
+  status: 429,              // optional HTTP status
+  retryAfterSeconds: 30,    // optional; the cooldown is never shorter
+  cause: originalError,     // optional
+});</code></pre>
+
+          <h3>Handling errors</h3>
+          <pre><code class="language-ts">import { AllModelsFailedError, LlmContentBlockedError } from '@vetrox/llm-balancer';
+
+try {
+  return await balancer.model('default').converse(request);
+} catch (err) {
+  if (err instanceof LlmContentBlockedError) return refuse(err.reason);
+  if (err instanceof AllModelsFailedError) return serviceUnavailable(err.failures);
+  throw err;
+}</code></pre>
+        </section>
+
+        <!-- ================================ EVENTS ============================== -->
+        <section id="tab-events" data-title="Events">
+          <h1>Events</h1>
+          <p class="lead">One hook for logs and metrics, with a suggested log level.</p>
+
+          <pre><code class="language-ts">new LoadBalancer({
+  // ...
+  onEvent: (e) => logger[e.level](`llm_${e.type}`, e.data),
+});</code></pre>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th><code>type</code></th>
+                  <th><code>level</code></th>
+                  <th><code>data</code></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>attempt</code></td>
+                  <td><code>info</code></td>
+                  <td><code>pool</code>, <code>provider</code>, <code>model</code></td>
+                </tr>
+                <tr>
+                  <td><code>attempt_failed</code></td>
+                  <td><code>warn</code></td>
+                  <td><code>pool</code>, <code>provider</code>, <code>model</code>, <code>kind</code>, <code>cooldownSeconds</code>, <code>lastResort</code>, <code>error</code></td>
+                </tr>
+                <tr>
+                  <td><code>content_blocked</code></td>
+                  <td><code>warn</code></td>
+                  <td><code>pool</code>, <code>provider</code>, <code>model</code>, <code>reason</code></td>
+                </tr>
+                <tr>
+                  <td><code>all_models_failed</code></td>
+                  <td><code>error</code></td>
+                  <td><code>pool</code>, <code>failures</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li>Events never contain prompts, images or answers.</li>
+            <li>An exception thrown by <code>onEvent</code> is ignored and never breaks a request.</li>
+            <li><code>BalancerEvent</code> is a discriminated union: switch on <code>type</code> for typed <code>data</code>.</li>
+          </ul>
+
+          <h3>Health status</h3>
+          <p>Inspect every model at any time, for example in a health-check endpoint:</p>
+          <pre><code class="language-ts">for (const m of await balancer.status()) {
+  console.log(m.provider, m.model, m.pools, m.healthy, m.cooldown);
+}
+// gemini gemini-2.5-flash ['default'] false
+//   { kind: 'rate_limited', reason: '...', until: 1760961234000, lastResort: false }</code></pre>
+          <p>
+            One entry per distinct model, in the order they first appear in the pools.
+            <code>cooldown.until</code> is epoch milliseconds (<code>Infinity</code> for a cooldown
+            that lasts until the process restarts).
+          </p>
+        </section>
+
+        <!-- =============================== PROVIDERS ============================ -->
+        <section id="tab-providers" data-title="Providers">
+          <h1>Providers</h1>
+          <p class="lead">Built-in Gemini and Ollama, environment helpers, and your own.</p>
+
+          <h3>Gemini</h3>
+          <pre><code class="language-ts">import { gemini } from '@vetrox/llm-balancer/gemini';
+
+const provider = gemini({ apiKey }); // name: 'gemini'</code></pre>
+          <ul>
+            <li><code>model</code> autocompletes known Gemini ids and accepts any other string.</li>
+            <li>HTTP statuses map to failure kinds as in <a href="#configuration">Configuration</a>.</li>
+            <li>HTTP 429 carries the retry delay from Gemini's <code>RetryInfo</code>.</li>
+            <li>Safety blocks of the prompt or the answer become <code>LlmContentBlockedError</code>.</li>
+            <li>An empty answer becomes <code>invalid_response</code>.</li>
+            <li>Throws <code>BalancerConfigError</code> for an empty <code>apiKey</code>.</li>
+            <li>For tests: <code>new GeminiProvider(models)</code> with your own <code>IGeminiModels</code> (<code>generateContent</code>).</li>
+          </ul>
+
+          <h3>Ollama</h3>
+          <pre><code class="language-ts">import { ollama } from '@vetrox/llm-balancer/ollama';
+
+const provider = ollama({
+  baseUrl: 'http://localhost:11434', // name: 'ollama'
+  fetch: myFetch,                     // optional: proxies, tests
+});</code></pre>
+          <ul>
+            <li>Uses <code>/api/chat</code>; <code>maxOutputTokens</code> becomes <code>num_predict</code>.</li>
+            <li>A model that is not pulled answers 404 and becomes <code>not_found</code>.</li>
+            <li>Throws <code>BalancerConfigError</code> when <code>baseUrl</code> is not an http(s) URL.</li>
+          </ul>
+
+          <h3>From environment variables</h3>
+          <pre><code class="language-ts">import { providersFromEnv } from '@vetrox/llm-balancer/env';
+
+const providers = providersFromEnv();
+// GEMINI_API_KEY  -> gemini()
+// OLLAMA_BASE_URL -> ollama()
+
+const fromConfig = providersFromEnv((name) => config[name]); // any other source</code></pre>
+          <p>
+            Reads <code>Deno.env</code>, or <code>process.env</code> outside Deno. Variables that
+            are set but invalid throw <code>BalancerConfigError</code>. On runtimes without either
+            (Cloudflare Workers without Node compatibility), pass a getter.
+          </p>
+
+          <h3>Your own provider</h3>
+          <pre><code class="language-ts">interface ILlmProvider&lt;Name extends string = string, Model extends string = string&gt; {
+  readonly name: Name;
+  converse(request: ConverseRequest, model: Model, signal: AbortSignal): Promise&lt;string&gt;;
+}</code></pre>
+          <p>Rules for implementations:</p>
+          <ul>
+            <li>Pass <code>signal</code> to your HTTP call so an attempt stops promptly.</li>
+            <li>
+              Throw <code>LlmProviderError</code> with the most specific <code>kind</code> you can
+              tell, plus <code>retryAfterSeconds</code> when the vendor sends one.
+              <code>failureKindForStatus(status)</code> covers the usual HTTP statuses.
+            </li>
+            <li>Throw <code>LlmContentBlockedError</code> when the vendor's safety filter refused the content.</li>
+            <li>Throw <code>invalid_response</code> for an empty answer instead of returning <code>''</code>.</li>
+            <li>Anything else you throw is treated as <code>unknown</code>.</li>
+          </ul>
+          <p>Example: xAI Grok through its OpenAI-compatible API (text only):</p>
+          <pre><code class="language-ts">import {
+  type ConverseRequest,
+  failureKindForStatus,
+  type ILlmProvider,
+  LlmProviderError,
+} from '@vetrox/llm-balancer';
+
+type GrokModel = 'grok-4' | 'grok-4-fast' | (string & {});
+
+export class GrokProvider implements ILlmProvider&lt;'grok', GrokModel&gt; {
+  readonly name = 'grok';
+
+  constructor(private readonly apiKey: string) {}
+
+  async converse(request: ConverseRequest, model: GrokModel, signal: AbortSignal) {
+    const messages = [
+      ...(request.system ? [{ role: 'system', content: request.system }] : []),
+      ...request.messages.map(({ role, content }) => ({
+        role,
+        content: typeof content === 'string'
+          ? content
+          : content.flatMap((p) => (p.type === 'text' ? [p.text] : [])).join('\n'),
+      })),
+    ];
+
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages, max_tokens: request.maxOutputTokens }),
+      signal,
+    });
+
+    if (!response.ok) {
+      const retryAfter = Number(response.headers.get('retry-after'));
+      throw new LlmProviderError({
+        kind: failureKindForStatus(response.status),
+        status: response.status,
+        message: `Grok answered with HTTP ${response.status}`,
+        retryAfterSeconds: Number.isFinite(retryAfter) ? retryAfter : undefined,
+      });
+    }
+
+    const text = (await response.json()).choices?.[0]?.message?.content;
+    if (!text) throw new LlmProviderError({ kind: 'invalid_response', message: 'Empty answer' });
+    return text;
+  }
+}</code></pre>
+          <p>Built-in and custom providers are treated exactly the same way.</p>
+        </section>
+
+        <!-- ============================= HEALTH STORE =========================== -->
+        <section id="tab-health-store" data-title="Health store">
+          <h1>Health store</h1>
+          <p class="lead">Where cooldowns live, and how to share them between instances.</p>
+          <p>
+            By default each balancer keeps health in memory (<code>MemoryHealthStore</code>), which
+            is right for one server or one serverless isolate. To share cooldowns between
+            instances, implement <code>IHealthStore</code>:
+          </p>
+          <pre><code class="language-ts">interface IHealthStore {
+  get(key: string): Promise&lt;HealthRecord | undefined&gt;;
+  set(key: string, record: HealthRecord): Promise&lt;void&gt;;
+  delete(key: string): Promise&lt;void&gt;;
+}
+
+interface HealthRecord {
+  kind: FailureKind;
+  reason: string;
+  until: number;       // epoch ms; Infinity = until removed
+  lastResort: boolean;
+}</code></pre>
+          <ul>
+            <li>Keys are <code>provider:model</code>.</li>
+            <li>The balancer decides about expiry; a store only keeps records.</li>
+            <li>A store that serializes records must preserve <code>until: Infinity</code>.</li>
+          </ul>
+          <p>Example with Redis:</p>
+          <pre><code class="language-ts">import type { HealthRecord, IHealthStore } from '@vetrox/llm-balancer';
+
+class RedisHealthStore implements IHealthStore {
+  constructor(private readonly redis: RedisClient) {}
+
+  async get(key: string) {
+    const raw = await this.redis.get(`llm-health:${key}`);
+    if (!raw) return undefined;
+    const record = JSON.parse(raw);
+    return { ...record, until: record.until ?? Infinity }; // JSON has no Infinity
+  }
+
+  async set(key: string, record: HealthRecord) {
+    const ttl = Number.isFinite(record.until) ? { PXAT: record.until } : {};
+    await this.redis.set(`llm-health:${key}`, JSON.stringify(record), ttl);
+  }
+
+  async delete(key: string) {
+    await this.redis.del(`llm-health:${key}`);
+  }
+}
+
+new LoadBalancer({ /* ... */ healthStore: new RedisHealthStore(redis) });</code></pre>
+        </section>
+
+        <!-- =============================== TESTING ============================== -->
+        <section id="tab-testing" data-title="Testing">
+          <h1>Testing</h1>
+          <p class="lead">Fake the balancer, or keep it and fake a provider.</p>
+
+          <h3>Fake the balancer</h3>
+          <p>
+            Depend on the interfaces <code>ILoadBalancer&lt;Pool&gt;</code> and
+            <code>IModelHandle</code> in your code, and give tests a fake:
+          </p>
+          <pre><code class="language-ts">import type { ILoadBalancer, IModelHandle } from '@vetrox/llm-balancer';
+
+class FakeBalancer implements ILoadBalancer&lt;'default'&gt; {
+  model(pool: 'default'): IModelHandle {
+    return { pool, converse: () => Promise.resolve('fake answer') };
+  }
+  status() {
+    return Promise.resolve([]);
+  }
+}</code></pre>
+
+          <h3>Keep the real balancer</h3>
+          <p>Register a scripted provider to test fallback and error handling end to end:</p>
+          <pre><code class="language-ts">import { type ILlmProvider, LlmProviderError, LoadBalancer } from '@vetrox/llm-balancer';
+
+const flaky: ILlmProvider&lt;'gemini'&gt; = {
+  name: 'gemini',
+  converse: (_request, model) =>
+    model === 'broken'
+      ? Promise.reject(new LlmProviderError({ kind: 'overloaded', message: '503' }))
+      : Promise.resolve(`answer from ${model}`),
+};
+
+const balancer = new LoadBalancer({
+  providers: [flaky],
+  pools: {
+    default: [
+      { provider: 'gemini', model: 'broken' },
+      { provider: 'gemini', model: 'working' },
+    ],
+  },
+});
+// -> 'answer from working'</code></pre>
+        </section>
+
+        <!-- ============================ API REFERENCE =========================== -->
+        <section id="tab-api" data-title="API reference">
+          <h1>API reference</h1>
+          <p class="lead">
+            Everything exported, at a glance. Full signatures and JSDoc are on
+            <a href="https://jsr.io/@vetrox/llm-balancer/doc">JSR</a>.
+          </p>
+
+          <h3><code>@vetrox/llm-balancer</code></h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Export</th>
+                  <th>Kind</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>LoadBalancer</code></td>
+                  <td>class</td>
+                  <td>The balancer; <code>model(pool)</code>, <code>status()</code></td>
+                </tr>
+                <tr>
+                  <td><code>ILoadBalancer</code></td>
+                  <td>interface</td>
+                  <td>What to depend on in your code</td>
+                </tr>
+                <tr>
+                  <td><code>IModelHandle</code></td>
+                  <td>interface</td>
+                  <td>A pool: <code>pool</code>, <code>converse(request)</code></td>
+                </tr>
+                <tr>
+                  <td><code>LoadBalancerConfig</code>, <code>TimeoutConfig</code></td>
+                  <td>types</td>
+                  <td>Constructor options</td>
+                </tr>
+                <tr>
+                  <td><code>HealthPolicyConfig</code>, <code>FailurePolicy</code></td>
+                  <td>types</td>
+                  <td>The <code>health</code> option</td>
+                </tr>
+                <tr>
+                  <td><code>ModelStatus</code></td>
+                  <td>type</td>
+                  <td>One entry of <code>status()</code></td>
+                </tr>
+                <tr>
+                  <td><code>ConverseRequest</code>, <code>Message</code>, <code>Role</code>, <code>Part</code>, <code>TextPart</code>, <code>ImagePart</code></td>
+                  <td>types</td>
+                  <td>Request shape</td>
+                </tr>
+                <tr>
+                  <td><code>ILlmProvider</code>, <code>ModelRef</code>, <code>ModelRefOf</code></td>
+                  <td>types</td>
+                  <td>Providers and pool entries</td>
+                </tr>
+                <tr>
+                  <td><code>AllModelsFailedError</code>, <code>AttemptFailure</code></td>
+                  <td>class, type</td>
+                  <td>No model answered</td>
+                </tr>
+                <tr>
+                  <td><code>LlmContentBlockedError</code></td>
+                  <td>class</td>
+                  <td>Blocked by a safety filter</td>
+                </tr>
+                <tr>
+                  <td><code>LlmProviderError</code>, <code>LlmProviderErrorOptions</code></td>
+                  <td>class, type</td>
+                  <td>Classified provider failure</td>
+                </tr>
+                <tr>
+                  <td><code>BalancerConfigError</code></td>
+                  <td>class</td>
+                  <td>Invalid configuration</td>
+                </tr>
+                <tr>
+                  <td><code>FailureKind</code></td>
+                  <td>type</td>
+                  <td>Why an attempt failed</td>
+                </tr>
+                <tr>
+                  <td><code>BalancerEvent</code>, <code>BalancerEventListener</code></td>
+                  <td>types</td>
+                  <td>The <code>onEvent</code> hook</td>
+                </tr>
+                <tr>
+                  <td><code>IHealthStore</code>, <code>HealthRecord</code>, <code>MemoryHealthStore</code></td>
+                  <td>interface, type, class</td>
+                  <td>Health storage</td>
+                </tr>
+                <tr>
+                  <td><code>failureKindForStatus</code></td>
+                  <td>function</td>
+                  <td>HTTP status → <code>FailureKind</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Providers</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Entry point</th>
+                  <th>Exports</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>/gemini</code></td>
+                  <td><code>gemini(options)</code>, <code>GeminiOptions</code>, <code>GeminiProvider</code>, <code>IGeminiModels</code>, <code>GeminiModel</code></td>
+                </tr>
+                <tr>
+                  <td><code>/ollama</code></td>
+                  <td><code>ollama(options)</code>, <code>OllamaOptions</code>, <code>OllamaProvider</code></td>
+                </tr>
+                <tr>
+                  <td><code>/env</code></td>
+                  <td><code>providersFromEnv(get?)</code>, <code>EnvGetter</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="pager">
+          <a id="prev" href="#" class="secondary"></a>
+          <a id="next" href="#" class="secondary"></a>
+        </div>
+      </main>
+    </div>
+
+    <script>
+    const sections = [...document.querySelectorAll('main section')];
+    const tabList = document.getElementById('tab-list');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+
+    const tabId = (section) => section.id.replace('tab-', '');
+
+    for (const section of sections) {
+      const item = document.createElement('li');
+      item.innerHTML = `<a href="#${tabId(section)}">${section.dataset.title}</a>`;
+      tabList.append(item);
+    }
+
+    function showTab() {
+      const id = location.hash.slice(1);
+      const index = Math.max(0, sections.findIndex((s) => tabId(s) === id));
+      sections.forEach((s, i) => s.classList.toggle('active', i === index));
+      tabList.querySelectorAll('a').forEach((a, i) => {
+        if (i === index) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+      setPagerLink(prev, sections[index - 1], '← ');
+      setPagerLink(next, sections[index + 1], '', ' →');
+      window.scrollTo({ top: 0 });
+    }
+
+    function setPagerLink(link, section, before = '', after = '') {
+      link.hidden = !section;
+      if (!section) return;
+      link.href = `#${tabId(section)}`;
+      link.textContent = `${before}${section.dataset.title}${after}`;
+    }
+
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+
+    function applyTheme(theme) {
+      root.dataset.theme = theme;
+      document.getElementById('hl-dark').disabled = theme !== 'dark';
+      document.getElementById('hl-light').disabled = theme !== 'light';
+      toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    let savedTheme = 'dark';
+    try {
+      savedTheme = localStorage.getItem('theme') ?? 'dark';
+    } catch {}
+    applyTheme(savedTheme);
+
+    toggle.addEventListener('click', () => {
+      const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(theme);
+      try {
+        localStorage.setItem('theme', theme);
+      } catch {}
+    });
+
+    window.addEventListener('hashchange', showTab);
+    showTab();
+    if (window.hljs) hljs.highlightAll();
+    </script>
+  </body>
+</html>
