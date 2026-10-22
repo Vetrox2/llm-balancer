@@ -6,9 +6,13 @@ const envOf = (vars: Record<string, string>) => (name: string) => vars[name];
 
 Deno.test('creates a provider for every configured service', () => {
   const providers = providersFromEnv(
-    envOf({ GEMINI_API_KEY: 'key', OLLAMA_BASE_URL: 'http://localhost:11434' }),
+    envOf({
+      GEMINI_API_KEY: 'key',
+      OLLAMA_BASE_URL: 'http://localhost:11434',
+      OPENROUTER_API_KEY: 'or-key',
+    }),
   );
-  assertEquals(providers.map((p) => p.name), ['gemini', 'ollama']);
+  assertEquals(providers.map((p) => p.name), ['gemini', 'ollama', 'openrouter']);
 });
 
 Deno.test('skips services without configuration', () => {
@@ -26,6 +30,7 @@ Deno.test('an invalid value fails loudly instead of being skipped', () => {
 Deno.test('reads the runtime environment by default', () => {
   Deno.env.set('GEMINI_API_KEY', 'from-env');
   Deno.env.delete('OLLAMA_BASE_URL');
+  Deno.env.delete('OPENROUTER_API_KEY');
   try {
     assertEquals(providersFromEnv().map((p) => p.name), ['gemini']);
   } finally {

@@ -6,4 +6,5 @@ export {
   type GenerateContentResponse,
   GoogleGenAI,
   type Part as GenAiPart,
+  type ThinkingLevel,
 } from 'npm:@google/genai@1.52.0';

@@ -8,8 +8,9 @@ import {
   type GenAiPart,
   type GenerateContentParameters,
   type GenerateContentResponse,
+  type ThinkingLevel,
 } from './genai.ts';
-import type { GeminiModel } from './models.ts';
+import type { GeminiModel, GeminiThinkingLevel } from './models.ts';
 
 /** The part of the `GoogleGenAI` client the provider uses (`new GoogleGenAI({ apiKey }).models`). */
 export interface IGeminiModels {
@@ -43,19 +44,33 @@ export class GeminiProvider implements ILlmProvider<'gemini', GeminiModel> {
 
   private readonly images = new ImageEncoder();
 
-  constructor(private readonly models: IGeminiModels) {}
+  /**
+   * @param thinkingLevels Thinking level per model; models left out use the model's default.
+   */
+  constructor(
+    private readonly models: IGeminiModels,
+    private readonly thinkingLevels: Partial<Record<GeminiModel, GeminiThinkingLevel>> = {},
+  ) {}
 
   async converse(
     { system, messages, maxOutputTokens }: ConverseRequest,
     model: GeminiModel,
     signal: AbortSignal,
   ): Promise<string> {
+    const thinkingLevel = this.thinkingLevels[model];
     let response: GenerateContentResponse;
     try {
       response = await this.models.generateContent({
         model,
         contents: messages.map((message) => this.toContent(message)),
-        config: { systemInstruction: system, maxOutputTokens, abortSignal: signal },
+        config: {
+          systemInstruction: system,
+          maxOutputTokens,
+          abortSignal: signal,
+          ...(thinkingLevel
+            ? { thinkingConfig: { thinkingLevel: thinkingLevel as ThinkingLevel } }
+            : {}),
+        },
       });
     } catch (err) {
       throw err instanceof ApiError ? this.toProviderError(err) : err;

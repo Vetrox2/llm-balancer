@@ -42,6 +42,15 @@ Deno.test('returns the text and sends the system prompt as the system instructio
   assertStrictEquals(models.calls[0].config?.abortSignal, SIGNAL);
 });
 
+Deno.test('sends the thinking level configured for the model, and none for other models', async () => {
+  const models = new FakeGeminiModels(answer('ok'));
+  const provider = new GeminiProvider(models, { 'gemma-4-31b-it': 'MINIMAL' });
+  await provider.converse(REQUEST, 'gemma-4-31b-it', SIGNAL);
+  await provider.converse(REQUEST, 'gemini-3.7-flash', SIGNAL);
+  assertEquals(models.calls[0].config?.thinkingConfig?.thinkingLevel, 'MINIMAL');
+  assertEquals(models.calls[1].config?.thinkingConfig, undefined);
+});
+
 Deno.test('maps messages to Gemini contents, with images inline', async () => {
   const models = new FakeGeminiModels(answer('ok'));
   await converse(models, {
