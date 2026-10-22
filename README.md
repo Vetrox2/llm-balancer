@@ -24,7 +24,7 @@ keeps that out of your application code.
 | 🔁 **Fallback**        | Group models into pools. A failed model hands the request to the next |
 | 🩺 **Model health**    | A failing model sits out a cooldown instead of failing every request  |
 | ⏱️ **Time budgets**    | A timeout per attempt and a limit for the whole request               |
-| 🔌 **Any vendor**      | Gemini and Ollama built in; add others through one small interface    |
+| 🔌 **Any vendor**      | Gemini, Ollama, OpenRouter and any OpenAI-compatible API built in     |
 | 🧷 **Type-safe pools** | `balancer.model('typo')` does not compile                             |
 | 📡 **Observable**      | One event hook for logs, and it never sees prompts or answers         |
 
@@ -90,8 +90,8 @@ The [documentation](https://vetrox2.github.io/llm-balancer/) covers everything e
   kind, last-resort retries, timeouts
 - 🚨 [Errors](https://vetrox2.github.io/llm-balancer/#errors): what is thrown and when
 - 📡 [Events](https://vetrox2.github.io/llm-balancer/#events): wiring the balancer to your logger
-- 🔌 [Providers](https://vetrox2.github.io/llm-balancer/#providers): Gemini, Ollama, environment
-  variables, and writing your own
+- 🔌 [Providers](https://vetrox2.github.io/llm-balancer/#providers): Gemini, Ollama, OpenRouter,
+  OpenAI-compatible APIs, environment variables, and writing your own
 - 🗄️ [Health store](https://vetrox2.github.io/llm-balancer/#health-store): sharing cooldowns between
   instances
 - 🧪 [Testing](https://vetrox2.github.io/llm-balancer/#testing): faking the balancer in your tests

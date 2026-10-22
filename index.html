@@ -337,6 +337,14 @@ bunx jsr add @vetrox/llm-balancer      # Bun</code></pre>
                   <td><code>ollama()</code>, <code>OllamaProvider</code> (no dependencies)</td>
                 </tr>
                 <tr>
+                  <td><code>@vetrox/llm-balancer/openai-compatible</code></td>
+                  <td><code>openAiCompatible()</code>, <code>OpenAiCompatibleProvider</code> (no dependencies)</td>
+                </tr>
+                <tr>
+                  <td><code>@vetrox/llm-balancer/openrouter</code></td>
+                  <td><code>openRouter()</code> (no dependencies)</td>
+                </tr>
+                <tr>
                   <td><code>@vetrox/llm-balancer/env</code></td>
                   <td><code>providersFromEnv()</code></td>
                 </tr>
@@ -623,7 +631,7 @@ interface FailurePolicy {
                   <td>a vendor's safety filter blocked the content</td>
                 </tr>
                 <tr>
-                  <td><code>gemini()</code>, <code>ollama()</code>, <code>providersFromEnv()</code></td>
+                  <td><code>gemini()</code>, <code>ollama()</code>, <code>openAiCompatible()</code>, <code>openRouter()</code>, <code>providersFromEnv()</code></td>
                   <td><code>BalancerConfigError</code></td>
                   <td>missing API key, invalid base URL</td>
                 </tr>
@@ -742,18 +750,28 @@ try {
         <!-- =============================== PROVIDERS ============================ -->
         <section id="tab-providers" data-title="Providers">
           <h1>Providers</h1>
-          <p class="lead">Built-in Gemini and Ollama, environment helpers, and your own.</p>
+          <p
+            class="lead">Built-in Gemini, Ollama and OpenAI-compatible APIs, env helpers, and your own.</p>
 
           <h3>Gemini</h3>
           <pre><code class="language-ts">import { gemini } from '@vetrox/llm-balancer/gemini';
 
-const provider = gemini({ apiKey }); // name: 'gemini'</code></pre>
+const provider = gemini({
+  apiKey, // name: 'gemini'
+  thinkingLevels: { 'gemma-4-31b-it': 'MINIMAL' }, // optional, per model
+});</code></pre>
           <ul>
             <li><code>model</code> autocompletes known Gemini ids and accepts any other string.</li>
             <li>HTTP statuses map to failure kinds as in <a href="#configuration">Configuration</a>.</li>
             <li>HTTP 429 carries the retry delay from Gemini's <code>RetryInfo</code>.</li>
             <li>Safety blocks of the prompt or the answer become <code>LlmContentBlockedError</code>.</li>
             <li>An empty answer becomes <code>invalid_response</code>.</li>
+            <li>
+              <code>thinkingLevels</code> sets <code>MINIMAL</code>, <code>LOW</code>,
+              <code>MEDIUM</code> or <code>HIGH</code> per model. Less thinking answers faster
+              (Gemma 4 with its default thinking can take minutes on a long prompt). A level the
+              model does not accept is rejected by the API with HTTP 400.
+            </li>
             <li>Throws <code>BalancerConfigError</code> for an empty <code>apiKey</code>.</li>
             <li>For tests: <code>new GeminiProvider(models)</code> with your own <code>IGeminiModels</code> (<code>generateContent</code>).</li>
           </ul>
@@ -771,12 +789,55 @@ const provider = ollama({
             <li>Throws <code>BalancerConfigError</code> when <code>baseUrl</code> is not an http(s) URL.</li>
           </ul>
 
+          <h3>OpenAI-compatible APIs</h3>
+          <pre><code class="language-ts">import { openAiCompatible } from '@vetrox/llm-balancer/openai-compatible';
+
+const provider = openAiCompatible({
+  name: 'mistral',                    // the name used in pools
+  baseUrl: 'https://api.mistral.ai/v1',
+  apiKey,                             // optional: Authorization: Bearer
+  headers: { 'X-Custom': 'value' },   // optional
+  modelOptions: { 'mistral-small-latest': { temperature: 0.7 } }, // optional, per model
+  fetch: myFetch,                     // optional: proxies, tests
+});</code></pre>
+          <ul>
+            <li>Any server with <code>/chat/completions</code>: Mistral, Groq, OpenRouter, vLLM, LM Studio, ...</li>
+            <li>Images go as <code>image_url</code> parts with a base64 data URL.</li>
+            <li>HTTP statuses map to failure kinds, also when the server puts an error with a status into a 200 answer.</li>
+            <li>HTTP 429 carries the delay from <code>Retry-After</code> or <code>X-RateLimit-Reset</code>.</li>
+            <li><code>finish_reason: "content_filter"</code>, a refusal or a moderation rejection becomes <code>LlmContentBlockedError</code>.</li>
+            <li>An empty answer, or one cut off by the token limit before any text, becomes <code>invalid_response</code>.</li>
+            <li><code>modelOptions</code> cannot replace <code>model</code>, <code>messages</code>, <code>stream</code> or <code>max_tokens</code>.</li>
+            <li>Throws <code>BalancerConfigError</code> for an empty <code>name</code> or a <code>baseUrl</code> that is not an http(s) URL.</li>
+          </ul>
+
+          <h3>OpenRouter</h3>
+          <pre><code class="language-ts">import { openRouter } from '@vetrox/llm-balancer/openrouter';
+
+const provider = openRouter({
+  apiKey,                                // name: 'openrouter'
+  appTitle: 'My app',                    // optional: X-Title
+  appUrl: 'https://example.com',         // optional: HTTP-Referer
+  reasoning: { 'openrouter/free': { effort: 'low' } }, // optional, per model
+});</code></pre>
+          <ul>
+            <li>An OpenAI-compatible provider preset for <code>https://openrouter.ai/api/v1</code>.</li>
+            <li>
+              <code>reasoning</code> limits how long a reasoning model thinks (<code>effort</code>,
+              <code>max_tokens</code> or <code>enabled: false</code>). Free reasoning models can
+              think for minutes on a long prompt.
+            </li>
+            <li>A used-up daily limit of free models (HTTP 429) is <code>rate_limited</code> with <code>retryAfterSeconds</code> until the reset.</li>
+            <li>Throws <code>BalancerConfigError</code> for an empty <code>apiKey</code>.</li>
+          </ul>
+
           <h3>From environment variables</h3>
           <pre><code class="language-ts">import { providersFromEnv } from '@vetrox/llm-balancer/env';
 
 const providers = providersFromEnv();
 // GEMINI_API_KEY  -> gemini()
 // OLLAMA_BASE_URL -> ollama()
+// OPENROUTER_API_KEY -> openRouter()
 
 const fromConfig = providersFromEnv((name) => config[name]); // any other source</code></pre>
           <p>
@@ -802,7 +863,7 @@ const fromConfig = providersFromEnv((name) => config[name]); // any other source
             <li>Throw <code>invalid_response</code> for an empty answer instead of returning <code>''</code>.</li>
             <li>Anything else you throw is treated as <code>unknown</code>.</li>
           </ul>
-          <p>Example: xAI Grok through its OpenAI-compatible API (text only):</p>
+          <p>Example: xAI Grok, written by hand to show the interface (for an OpenAI-compatible API like this one, <code>openAiCompatible()</code> does the same in one call):</p>
           <pre><code class="language-ts">import {
   type ConverseRequest,
   failureKindForStatus,
@@ -1065,11 +1126,19 @@ const balancer = new LoadBalancer({
               <tbody>
                 <tr>
                   <td><code>/gemini</code></td>
-                  <td><code>gemini(options)</code>, <code>GeminiOptions</code>, <code>GeminiProvider</code>, <code>IGeminiModels</code>, <code>GeminiModel</code></td>
+                  <td><code>gemini(options)</code>, <code>GeminiOptions</code>, <code>GeminiProvider</code>, <code>IGeminiModels</code>, <code>GeminiModel</code>, <code>GeminiThinkingLevel</code></td>
                 </tr>
                 <tr>
                   <td><code>/ollama</code></td>
                   <td><code>ollama(options)</code>, <code>OllamaOptions</code>, <code>OllamaProvider</code></td>
+                </tr>
+                <tr>
+                  <td><code>/openai-compatible</code></td>
+                  <td><code>openAiCompatible(config)</code>, <code>OpenAiCompatibleConfig</code>, <code>OpenAiCompatibleProvider</code></td>
+                </tr>
+                <tr>
+                  <td><code>/openrouter</code></td>
+                  <td><code>openRouter(options)</code>, <code>OpenRouterOptions</code>, <code>OpenRouterProvider</code>, <code>OpenRouterModel</code>, <code>OpenRouterReasoning</code></td>
                 </tr>
                 <tr>
                   <td><code>/env</code></td>
